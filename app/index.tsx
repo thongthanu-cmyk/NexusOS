@@ -169,7 +169,7 @@ const triggerReminderNotification = async (reminder: Reminder): Promise<void> =>
             content: {
                 title: `⏰ ${reminder.title}`,
                 body: reminder.message || 'ถึงเวลาแจ้งเตือนแล้ว!',
-                sound: 'beet',
+                sound: 'default',
                 data: {
                     nexusReminder: true,
                     reminderId: reminder.id,
@@ -198,32 +198,24 @@ const setupNotifChannel = async () => {
         await Notifications.setNotificationChannelAsync(NOTIF_CHANNEL_ID, {
             name: '⏰ NEXUS ALARM SYSTEM v6.0',
             description: 'Alarm Clock Notification - Works in Background, Lock Screen & Closed App',
-
-            // ⚠️ สำคัญ: sound ต้องตรงกับชื่อไฟล์ที่ android/app/src/main/res/raw/
-            sound: 'beet',
+            sound: 'default',
             audioAttributes: {
-                usage: 6,      // USAGE_ALARM
+                usage: 6,
                 contentType: 4,
             },
-
-            vibrationPattern: [
-                0, 500, 200, 500, 200, 500, 200, 500, 200, 500,
-            ],
-
+            vibrationPattern: [0, 500, 200, 500, 200, 500, 200, 500, 200, 500],
             importance: Notifications.AndroidImportance.MAX,
             enableVibrate: true,
             enableLights: true,
             lightColor: '#00f5ff',
-
             lockscreenVisibility: Notifications.AndroidNotificationVisibility?.PUBLIC ?? 1,
-            bypassDnd: true,  // ทะลวง Do Not Disturb
+            bypassDnd: true,
             showBadge: true,
-
-            soundAttributesUsage: 6,  // USAGE_ALARM
+            soundAttributesUsage: 6,
         });
 
         console.log('✅ Notification Channel Ready:');
-        console.log('   • Sound: beet.mp3');
+        console.log('   • Sound: default');
         console.log('   • Importance: MAX');
         console.log('   • Vibration: Enabled');
         console.log('   • Bypass DND: YES ✓');
@@ -251,7 +243,7 @@ Notifications.setNotificationHandler({
 
         return {
             shouldShowAlert: true,
-            shouldPlaySound: true,    // ✓ ต้องเป็น true
+            shouldPlaySound: true,
             shouldSetBadge: true,
         };
     },
@@ -269,10 +261,8 @@ const playVibrationAlarm = async (
         console.log('🔔 ALARM TRIGGERED:', title);
         console.log('   Message:', message);
 
-        // Step 1: Load and play notification sound
         await playNotificationSound();
 
-        // Step 2: Trigger vibration on Android (if app is open)
         if (Platform.OS === 'android') {
             try {
                 Vibration?.vibrate?.([0, 500, 200, 500, 200, 500, 200, 500, 200, 500]);
@@ -281,8 +271,6 @@ const playVibrationAlarm = async (
                 console.warn('⚠️ Vibration error:', e);
             }
         }
-
-        // When app is closed, Android system handles sound/vibration automatically
 
         console.log('✅ Alarm completed');
     } catch (e) {
@@ -353,10 +341,8 @@ export default function NexusApp() {
     const appState = useRef<AppStateStatus>(AppState.currentState);
 
     useEffect(() => {
-        // ✅ INIT AUDIO FOR BACKGROUND PLAYBACK
         const initializeApp = async () => {
             try {
-                // Step 1: Set up audio session
                 await Audio.setAudioModeAsync({
                     staysActiveInBackground: true,
                     shouldDuckAndroid: false,
@@ -370,14 +356,11 @@ export default function NexusApp() {
             }
 
             try {
-                // Step 2: Set up notification channel
                 await setupNotifChannel();
-
-                // Step 3: Load beet.mp3 sound
                 await loadNotificationSound();
 
                 console.log('✅ NEXUS ALARM SYSTEM v6.0 Initialized');
-                console.log('   • Sound file: beet.mp3 ✓');
+                console.log('   • Sound file: default ✓');
                 console.log('   • Background mode: Enabled ✓');
                 console.log('   • App closed notifications: Enabled ✓');
             } catch (e) {
@@ -600,7 +583,7 @@ function ReminderScreen({ showToast }: ScreenProps) {
                 content: {
                     title: `⏰ ${reminder.title}`,
                     body: reminder.message || 'ถึงเวลาแจ้งเตือนแล้ว!',
-                    sound: 'beet',
+                    sound: 'default',
                     priority: 'high',
                     data: {
                         nexusReminder: true,
@@ -626,7 +609,7 @@ function ReminderScreen({ showToast }: ScreenProps) {
             console.log('   • Title:', reminder.title);
             console.log('   • Time:', `${reminder.hour}:${String(reminder.minute).padStart(2, '0')}`);
             console.log('   • Date:', `${reminder.day}/${reminder.month}/${reminder.year}`);
-            console.log('   • Sound: beet.mp3');
+            console.log('   • Sound: default');
             console.log('   • Will work when app closed: YES ✓');
 
             return notifId;
@@ -672,7 +655,7 @@ function ReminderScreen({ showToast }: ScreenProps) {
         setShowForm(false);
     };
 
-    const deleteReminder = async (id) => {
+    const deleteReminder = async (id: string) => {
         const reminder = reminders.find(r => r.id === id);
         if (reminder?.notifId) {
             try { await Notifications.cancelScheduledNotificationAsync(reminder.notifId); } catch (e) { }
@@ -683,7 +666,7 @@ function ReminderScreen({ showToast }: ScreenProps) {
         showToast('✓ ลบแจ้งเตือนแล้ว', C.magenta);
     };
 
-    const toggleComplete = (id) => {
+    const toggleComplete = (id: string) => {
         setReminders(reminders.map(r => r.id === id ? { ...r, isCompleted: !r.isCompleted, triggeredAt: new Date().toLocaleTimeString('th-TH') } : r));
     };
 
@@ -749,7 +732,7 @@ function ReminderScreen({ showToast }: ScreenProps) {
                     <View style={{ flexDirection: 'row', gap: 6, marginBottom: 8 }}>
                         {[{ key: 'once', label: 'ครั้งเดียว' }, { key: 'monthly', label: 'ทุกเดือน' }, { key: 'yearly', label: 'ทุกปี' }].map(r => (
                             <TouchableOpacity key={r.key} style={[s.filterChip, formData.recurrence === r.key && { borderColor: C.cyan, backgroundColor: 'rgba(0,245,255,0.08)' }]}
-                                onPress={() => setFormData({ ...formData, recurrence: r.key })}>
+                                onPress={() => setFormData({ ...formData, recurrence: r.key as any })}>
                                 <Text style={[s.mono, { color: formData.recurrence === r.key ? C.cyan : C.text, fontSize: 9 }]}>{r.label}</Text>
                             </TouchableOpacity>
                         ))}
@@ -777,7 +760,7 @@ function ReminderScreen({ showToast }: ScreenProps) {
 
             <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12 }}>
                 {[{ key: 'all', label: 'ทั้งหมด' }, { key: 'pending', label: `อยู่ระหว่าง (${pendingCount})` }, { key: 'completed', label: 'สำเร็จแล้ว' }].map(f => (
-                    <TouchableOpacity key={f.key} style={[s.filterChip, filterType === f.key && { borderColor: C.cyan, backgroundColor: 'rgba(0,245,255,0.08)' }]} onPress={() => setFilterType(f.key)}>
+                    <TouchableOpacity key={f.key} style={[s.filterChip, filterType === f.key && { borderColor: C.cyan, backgroundColor: 'rgba(0,245,255,0.08)' }]} onPress={() => setFilterType(f.key as any)}>
                         <Text style={[s.mono, { color: filterType === f.key ? C.cyan : C.text, fontSize: 9 }]}>{f.label}</Text>
                     </TouchableOpacity>
                 ))}
@@ -888,7 +871,7 @@ function AIScreen({ showToast }: ScreenProps) {
             setModel(res.model);
             setHistory((h) => [...h.slice(-18), { role: 'model', parts: [{ text: res.text }] }]);
             addMsg('ai', res.text);
-        } catch (e) {
+        } catch (e: any) {
             setHistory((h) => h.slice(0, -1));
             if (e.message === 'KEY_INVALID') {
                 clearKey();
@@ -1018,7 +1001,7 @@ function HabitScreen({ showToast }: ScreenProps) {
         let list = raw ? JSON.parse(raw) : [];
         const today = new Date().toDateString();
         if (lastReset !== today) {
-            list = list.map((h) => ({ ...h, streak: h.done ? (h.streak || 0) + 1 : 0, done: false }));
+            list = list.map((h: Habit) => ({ ...h, streak: h.done ? (h.streak || 0) + 1 : 0, done: false }));
             await AsyncStorage.setItem(SKEYS.HABIT_RESET, today);
             await AsyncStorage.setItem(SKEYS.HABITS, JSON.stringify(list));
         }
@@ -1159,7 +1142,7 @@ function FinanceScreen({ showToast }: ScreenProps) {
             </View>
 
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
-                {[{ type: 'income', label: '▲ INCOME', color: C.green, amt: income }, { type: 'expense', label: '▼ EXPENSE', color: C.magenta, amt: expense }].map(({ type, label, color, amt }) => (
+                {[{ type: 'income' as const, label: '▲ INCOME', color: C.green, amt: income }, { type: 'expense' as const, label: '▼ EXPENSE', color: C.magenta, amt: expense }].map(({ type, label, color, amt }) => (
                     <TouchableOpacity key={type} style={[s.statCard, { borderColor: color + '4D' }, activeTypeFilter === type && { backgroundColor: color + '14' }]}
                         onPress={() => { setActiveTypeFilter(activeTypeFilter === type ? null : type); setActiveCatFilter('all'); }}>
                         <Text style={[s.mono, { color, fontSize: 8, letterSpacing: 2, marginBottom: 4 }]}>{label}</Text>
@@ -1173,7 +1156,7 @@ function FinanceScreen({ showToast }: ScreenProps) {
                 <Text style={s.panelTitle}>NEW TRANSACTION</Text>
 
                 <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                    {[{ key: 'income', label: '▲ รายรับ', color: C.green }, { key: 'expense', label: '▼ รายจ่าย', color: C.magenta }].map(({ key, label, color }) => (
+                    {[{ key: 'income' as const, label: '▲ รายรับ', color: C.green }, { key: 'expense' as const, label: '▼ รายจ่าย', color: C.magenta }].map(({ key, label, color }) => (
                         <TouchableOpacity key={key} style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderRadius: 2 },
                         txType === key ? { borderColor: color, backgroundColor: color + '1E' } : { borderColor: C.border }]}
                             onPress={() => setTxType(key)}>
@@ -1233,7 +1216,7 @@ function FinanceScreen({ showToast }: ScreenProps) {
                                 <View style={[s.txDot, { backgroundColor: t.type === 'income' ? C.green : C.magenta }]} />
                                 <View style={{ flex: 1, minWidth: 0 }}>
                                     <Text style={[s.mono, { color: C.bright, fontSize: 13, fontWeight: '600' }]} numberOfLines={1}>
-                                        {CAT_ICONS[t.cat] || '📦'} {t.desc}
+                                        {CAT_ICONS[t.cat]} {t.desc}
                                     </Text>
                                     <Text style={[s.mono, { color: 'rgba(160,184,208,0.4)', fontSize: 9, marginTop: 1 }]}>{t.date}</Text>
                                 </View>
@@ -1246,7 +1229,7 @@ function FinanceScreen({ showToast }: ScreenProps) {
                             </TouchableOpacity>
                             {expandedTx === t.id && (
                                 <View style={s.txDetail}>
-                                    {[['TYPE', t.type === 'income' ? '▲ รายรับ' : '▼ รายจ่าย'], ['CATEGORY', `${CAT_ICONS[t.cat] || ''} ${t.cat}`], ['DATE/TIME', t.date], ['AMOUNT', `${t.type === 'income' ? '+' : '-'}฿${fmtNum(t.amount)}`]].map(([k, v]) => (
+                                    {[['TYPE', t.type === 'income' ? '▲ รายรับ' : '▼ รายจ่าย'], ['CATEGORY', `${CAT_ICONS[t.cat]} ${t.cat}`], ['DATE/TIME', t.date], ['AMOUNT', `${t.type === 'income' ? '+' : '-'}฿${fmtNum(t.amount)}`]].map(([k, v]) => (
                                         <View key={k} style={{ flexDirection: 'row', marginBottom: 5 }}>
                                             <Text style={[s.mono, { color: 'rgba(0,245,255,0.5)', fontSize: 11, width: 90 }]}>{k}</Text>
                                             <Text style={[s.mono, { color: C.bright, fontSize: 11, flex: 1 }]}>{v}</Text>

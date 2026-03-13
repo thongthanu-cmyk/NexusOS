@@ -198,7 +198,7 @@ const setupNotifChannel = async () => {
         await Notifications.setNotificationChannelAsync(NOTIF_CHANNEL_ID, {
             name: '⏰ NEXUS ALARM SYSTEM v6.0',
             description: 'Alarm Clock Notification - Works in Background, Lock Screen & Closed App',
-            sound: 'default',
+            sound: 'beet',
             audioAttributes: {
                 usage: 6,
                 contentType: 4,
@@ -213,13 +213,6 @@ const setupNotifChannel = async () => {
             showBadge: true,
             soundAttributesUsage: 6,
         });
-
-        console.log('✅ Notification Channel Ready:');
-        console.log('   • Sound: default');
-        console.log('   • Importance: MAX');
-        console.log('   • Vibration: Enabled');
-        console.log('   • Bypass DND: YES ✓');
-        console.log('   • Works when app closed: YES ✓');
     } catch (e) {
         console.warn('⚠️ Channel setup warning:', e.message);
     }

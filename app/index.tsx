@@ -240,7 +240,6 @@ Notifications.setNotificationHandler({
         if (data?.nexusReminder) {
             console.log('🔔 Notification handler triggered:', data.reminderTitle);
 
-            // Play alarm sound when notification is received (app open)
             setTimeout(async () => {
                 try {
                     await playVibrationAlarm(data.reminderTitle, data.reminderMessage);
@@ -250,10 +249,9 @@ Notifications.setNotificationHandler({
             }, 500);
         }
 
-        // Return how the notification should be displayed
         return {
             shouldShowAlert: true,
-            shouldPlaySound: true,
+            shouldPlaySound: true,    // ✓ ต้องเป็น true
             shouldSetBadge: true,
         };
     },

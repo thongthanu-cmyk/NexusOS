@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "owner": "hardbeat1234",
+    "name": "NEXUS OS",
+    "slug": "nexus-os",
+    "version": "4.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "nexusos",
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/favicon.png",
+        "backgroundColor": "#04040f"
+      },
+      "package": "com.hardbeat.nexusos",
+      "permissions": [
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.READ_EXACT_ALARM",
+        "android.permission.SET_ALARM",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.VIBRATE",
+        "android.permission.ACCESS_NOTIFICATION_POLICY",
+        "android.permission.WAKE_LOCK",
+        "android.permission.DISABLE_KEYGUARD",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.INTERNET"
+      ]
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.hardbeat.nexusos",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio",
+          "remote-notification"
+        ],
+        "NSLocalNetworkUsageDescription": "This app uses local network to function properly",
+        "NSBonjourServices": [
+          "_http._tcp",
+          "_osc._udp"
+        ],
+        "NSMicrophoneUsageDescription": "Used for voice notifications and speech synthesis"
+      }
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#00f5ff",
+          "sounds": [
+            "./assets/beet.mp3"
+          ]
+        }
+      ],
+      [
+        "expo-av"
+      ],
+      "expo-router"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "3738e4ce-bcf0-4150-8f2b-fcf0322ca8b7"
+      }
+    }
+  }
+}
